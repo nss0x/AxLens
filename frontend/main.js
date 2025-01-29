@@ -9,15 +9,17 @@ function createWindow () {
     }
   });
 
-  // win.loadFile('index.html'); // We will create this later
+  win.loadFile('index.html');
+
+  win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
   createWindow();
 
   // Register a 'CommandOrControl+X' shortcut listener.
-  const ret = globalShortcut.register('CommandOrControl+Space+M', () => {
-    console.log('CommandOrControl+Space+M is pressed');
+  const ret = globalShortcut.register('Control+Space+M', () => {
+    console.log('Control+Space+M is pressed');
     // We will add functionality here later
   });
 
@@ -26,12 +28,12 @@ app.whenReady().then(() => {
   }
 
   // Check whether a shortcut is registered.
-  console.log(globalShortcut.isRegistered('CommandOrControl+Space+M'));
+  console.log(globalShortcut.isRegistered('Control+Space+M'));
 });
 
 app.on('will-quit', () => {
   // Unregister a shortcut.
-  globalShortcut.unregister('CommandOrControl+Space+M');
+  globalShortcut.unregister('Control+Space+M');
 
   // Unregister all shortcuts.
   globalShortcut.unregisterAll();
