@@ -2,3 +2,5 @@ Pillow
 pynput
 openai
 pyautogui
+fastapi
+uvicorn
