@@ -12,3 +12,6 @@ ENV/
 # IDEs
 .vscode/
 .idea/
+
+# Screenshots
+screenshots/
