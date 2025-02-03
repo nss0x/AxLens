@@ -1,17 +1,35 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 
 function createWindow () {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      preload: `${__dirname}/preload.js`,
+      nodeIntegration: false,
+      contextIsolation: true
     }
   });
 
   win.loadFile('index.html');
 
   win.webContents.openDevTools();
+
+  ipcMain.on('capture-screen', async (event) => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/analyze-screen', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        event.reply('screenshot-captured', data.path);
+      } else {
+        console.error('Error from backend:', data.message);
+      }
+    } catch (error) {
+      console.error('Failed to call backend:', error);
+    }
+  });
 }
 
 app.whenReady().then(() => {
