@@ -1,5 +1,28 @@
 const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 
+async function captureAndSendScreenshot(webContents) {
+  try {
+    console.log('Attempting to fetch from backend...');
+    const response = await fetch('http://127.0.0.1:8000/api/v1/analyze-screen', {
+      method: 'POST'
+    });
+    console.log('Backend response status:', response.status);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+    }
+    const data = await response.json();
+    if (data.status === 'success') {
+      webContents.send('screenshot-captured', data.path);
+    } else {
+      console.error('Error from backend:', data.message);
+    }
+  } catch (error) {
+    console.error('Failed to call backend:', error);
+    console.error('Error details:', error.message);
+  }
+}
+
 function createWindow () {
   const win = new BrowserWindow({
     width: 800,
@@ -16,26 +39,7 @@ function createWindow () {
   win.webContents.openDevTools();
 
   ipcMain.on('capture-screen', async (event) => {
-    try {
-      console.log('Attempting to fetch from backend...');
-      const response = await fetch('http://127.0.0.1:8000/api/v1/analyze-screen', {
-        method: 'POST'
-      });
-      console.log('Backend response status:', response.status);
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
-      }
-      const data = await response.json();
-      if (data.status === 'success') {
-        event.reply('screenshot-captured', data.path);
-      } else {
-        console.error('Error from backend:', data.message);
-      }
-    } catch (error) {
-      console.error('Failed to call backend:', error);
-      console.error('Error details:', error.message);
-    }
+    captureAndSendScreenshot(event.sender);
   });
 }
 
@@ -48,7 +52,7 @@ app.whenReady().then(() => {
     // Get the focused window and send the capture-screen event
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
-      focusedWindow.webContents.send('capture-screen');
+      captureAndSendScreenshot(focusedWindow.webContents);
     }
   });
 
