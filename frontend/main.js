@@ -49,13 +49,12 @@ app.whenReady().then(() => {
   // Register a 'CommandOrControl+X' shortcut listener.
   const ret = globalShortcut.register('Control+Space+M', () => {
     console.log('Control+Space+M is pressed');
-    // Get the focused window and send the capture-screen event
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    if (focusedWindow) {
-      console.log('Focused window detected. Triggering screenshot.');
-      captureAndSendScreenshot(focusedWindow.webContents);
+    const allWindows = BrowserWindow.getAllWindows();
+    if (allWindows.length > 0) {
+      console.log('Found existing window. Triggering screenshot.');
+      captureAndSendScreenshot(allWindows[0].webContents);
     } else {
-      console.log('No focused window found.');
+      console.log('No open windows found.');
     }
   });
 
