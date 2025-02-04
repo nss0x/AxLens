@@ -52,7 +52,10 @@ app.whenReady().then(() => {
     // Get the focused window and send the capture-screen event
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
+      console.log('Focused window detected. Triggering screenshot.');
       captureAndSendScreenshot(focusedWindow.webContents);
+    } else {
+      console.log('No focused window found.');
     }
   });
 
